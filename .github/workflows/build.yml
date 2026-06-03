@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,11 +21,14 @@ jobs:
         with:
           ndk-version: r26d
 
-      - uses: Fernthedev/qpm-action@main
-        with:
-          workflow_token: ${{ secrets.GITHUB_TOKEN }}
-          restore: true
-          cache: true
+      - name: Install QPM
+        run: |
+          wget https://github.com/QuestPackageManager/QPM.CLI/releases/latest/download/qpm-linux-x64 -O qpm
+          chmod +x qpm
+          sudo mv qpm /usr/local/bin/qpm
+
+      - name: QPM Restore
+        run: qpm restore
 
       - name: Build
         run: qpm s build
