@@ -1,0 +1,25 @@
+{
+  "name": "NameTags",
+  "id": "NameTags",
+  "author": "YourName",
+  "version": "1.0.0",
+  "packageId": "com.AnotherAxiom.GorillaTag",
+  "packageVersion": ">=1.0.0",
+  "description": "Displays nametags above players showing username, platform (Steam/Quest), ping, FPS, and refresh rate with color coding.",
+  "dependencies": [
+    {
+      "id": "beatsaber-hook",
+      "versionRange": ">=3.0.0",
+      "downloadIfMissing": "https://github.com/sc2ad/beatsaber-hook/releases/download/v3.12.1/beatsaber-hook_3.12.1.qmod"
+    },
+    {
+      "id": "gorilla-utils",
+      "versionRange": ">=0.1.0",
+      "downloadIfMissing": "https://github.com/Graicc/gorilla-utils/releases/latest/download/gorilla-utils.qmod"
+    }
+  ],
+  "modFiles": [
+    "libNameTags.so"
+  ],
+  "libraryFiles": []
+}

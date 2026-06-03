@@ -1,0 +1,31 @@
+{
+  "info": {
+    "name": "NameTags",
+    "id": "NameTags",
+    "version": "1.0.0",
+    "url": null,
+    "additionalData": {
+      "modFiles": ["libNameTags.so"],
+      "overrideSoName": "libNameTags"
+    }
+  },
+  "dependencies": [
+    {
+      "id": "beatsaber-hook",
+      "versionRange": "^3.12.1",
+      "additionalData": {}
+    },
+    {
+      "id": "gorilla-utils",
+      "versionRange": "^0.1.0",
+      "additionalData": {}
+    },
+    {
+      "id": "codegen",
+      "versionRange": "^0.24.0",
+      "additionalData": {
+        "headersOnly": true
+      }
+    }
+  ]
+}
