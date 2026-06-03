@@ -1,0 +1,40 @@
+name: Build NameTags Mod
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get install -y zip unzip wget
+
+      - name: Install QPM
+        run: |
+          curl -sL https://github.com/QuestPackageManager/QPM.CLI/releases/download/bleeding/qpm-linux-x64-musl.zip -o qpm.zip
+          unzip qpm.zip -d qpm_extracted
+          chmod +x qpm_extracted/qpm
+          sudo mv qpm_extracted/qpm /usr/local/bin/qpm
+
+      - name: Install NDK
+        run: |
+          wget https://dl.google.com/android/repository/android-ndk-r23c-linux.zip
+          unzip android-ndk-r23c-linux.zip -d $HOME
+          echo "ANDROID_NDK_HOME=$HOME/android-ndk-r23c" >> $GITHUB_ENV
+
+      - name: Restore QPM dependencies
+        run: qpm restore
+
+      - name: Build
+        run: chmod +x build.sh && ./build.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: NameTags
+          path: NameTags.qmod
