@@ -27,8 +27,11 @@ jobs:
           chmod +x qpm
           sudo mv qpm /usr/local/bin/qpm
 
+      - name: Check QPM
+        run: qpm --version
+
       - name: QPM Restore
-        run: qpm restore
+        run: qpm restore --verbose
 
       - name: Build
         run: qpm s build
