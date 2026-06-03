@@ -1,40 +1,58 @@
-name: Build NameTags Mod
+name: Build and Package Mod
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
-      - name: Install dependencies
-        run: sudo apt-get install -y zip unzip wget
+    - name: Install NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r26d
 
-      - name: Install QPM
-        run: |
-          curl -sL https://github.com/QuestPackageManager/QPM.CLI/releases/download/bleeding/qpm-linux-x64-musl.zip -o qpm.zip
-          unzip qpm.zip -d qpm_extracted
-          chmod +x qpm_extracted/qpm
-          sudo mv qpm_extracted/qpm /usr/local/bin/qpm
+    - name: Install QPM-RS
+      uses: Fernthedev/qpm-action@main
+      with:
+        workflow_token: ${{ secrets.GITHUB_TOKEN }}
+        restore: true
+        cache: true
 
-      - name: Install NDK
-        run: |
-          wget https://dl.google.com/android/repository/android-ndk-r23c-linux.zip
-          unzip android-ndk-r23c-linux.zip -d $HOME
-          echo "ANDROID_NDK_HOME=$HOME/android-ndk-r23c" >> $GITHUB_ENV
+    - name: Build
+      run: |
+        cd ${{ github.workspace }}
+        qpm s build
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
-      - name: Restore QPM dependencies
-        run: qpm restore
+    - name: Package .qmod
+      run: |
+        qpm qmod zip
+      working-directory: ${{ github.workspace }}
 
-      - name: Build
-        run: chmod +x build.sh && ./build.sh
+    - name: Upload .qmod artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: NameTags.qmod
+        path: ./*.qmod
+        if-no-files-found: error
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: NameTags
-          path: NameTags.qmod
+    - name: Create Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./*.qmod
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
