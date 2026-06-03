@@ -1,58 +1,39 @@
-name: Build and Package Mod
+name: Build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-    - name: Install NDK
-      uses: nttld/setup-ndk@v1
-      id: setup-ndk
-      with:
-        ndk-version: r26d
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
 
-    - name: Install QPM-RS
-      uses: Fernthedev/qpm-action@main
-      with:
-        workflow_token: ${{ secrets.GITHUB_TOKEN }}
-        restore: true
-        cache: true
+      - uses: Fernthedev/qpm-action@main
+        with:
+          workflow_token: ${{ secrets.GITHUB_TOKEN }}
+          restore: true
+          cache: true
 
-    - name: Build
-      run: |
-        cd ${{ github.workspace }}
-        qpm s build
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Build
+        run: qpm s build
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
-    - name: Package .qmod
-      run: |
-        qpm qmod zip
-      working-directory: ${{ github.workspace }}
+      - name: Package qmod
+        run: qpm qmod zip
 
-    - name: Upload .qmod artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: NameTags.qmod
-        path: ./*.qmod
-        if-no-files-found: error
-
-    - name: Create Release (on tag)
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ./*.qmod
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: NameTags.qmod
+          path: "*.qmod"
+          if-no-files-found: error
